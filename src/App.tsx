@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/register.tsx";
 import Home from "./pages/Home.tsx";
+import { MeasurementForm } from "./pages/MeasurementForm.tsx";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/mesure" element={<MeasurementForm />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
