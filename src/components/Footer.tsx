@@ -1,5 +1,6 @@
 import logoImage from "@/assets/modolk-logo.png";
 import { Instagram, MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -7,11 +8,13 @@ const Footer = () => {
       <div className="container mx-auto px-4 md:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12">
           <div className="col-span-2 md:col-span-1">
-            <img
-              src={logoImage}
-              alt="MODOL'K"
-              className="w-12 h-12 object-contain mb-4"
-            />
+            <Link to="/">
+              <img
+                src={logoImage}
+                alt="MODOL'K"
+                className="w-12 h-12 object-contain mb-4"
+              />
+            </Link>
             <p className="text-[11px] tracking-[0.2em] uppercase font-semibold mb-3">
               MODOL'K
             </p>

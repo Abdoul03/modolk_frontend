@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import logoImage from "@/assets/modolk-logo.png";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,12 +18,14 @@ const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
   const [searchOpen, setSearchOpen] = useState(false);
   const [wishlist, setWishlist] = useState<number[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
   return (
     <div>
       <nav
@@ -92,6 +95,7 @@ const Navbar = () => {
                 className={`transition-colors hover:text-primary hidden md:block ${
                   scrolled ? "text-foreground" : "text-background"
                 }`}
+                onClick={() => navigate("/login")}
               >
                 <User className="w-[18px] h-[18px]" />
               </button>
