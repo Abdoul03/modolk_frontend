@@ -26,21 +26,76 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import StatCard from "@/components/StatCard";
 import OrderItem from "@/components/OrderItem";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { getUserIdFromToken } from "@/lib/auth-utils";
+import api from "@/integrations/api";
 
 const Home = () => {
   const [user, setUser] = useState(null);
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+
+  // const userInformation = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const token = localStorage.getItem("access_token");
+  //     const userId = getUserIdFromToken(token);
+  //     if (userId) {
+  //       const response = await api.get(`/users/${userId}`);
+  //       if (response.status === 200 || response.status === 201) {
+  //         const userdata = response.data;
+  //         setUser(userdata);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Erreur lors de l'inscription",
+  //       description:
+  //         error.response?.data?.message || "Une erreur est survenue.",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
-    // Récupération des infos stockées lors de l'inscription/connexion
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
-  }, []);
+    const fetchUser = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("access_token");
+        const userId = getUserIdFromToken(token);
+
+        if (userId) {
+          const response = await api.get(`/users/${userId}`);
+
+          if (response.status === 200 || response.status === 201) {
+            setUser(response.data);
+          }
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Session interrompue",
+          description: "Merci de vous reconnecter pour accéder à votre espace.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [toast]);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FBFBFB]">
       {/* <Navbar /> */}
-
+      {loading && (
+        <p className="text-center text-sm text-muted-foreground animate-pulse">
+          Chargement de votre profil...
+        </p>
+      )}
       <main className="flex-grow container mx-auto px-4 py-10">
         {/* Header du Dashboard */}
         <DashboardHeader

@@ -11,6 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Info, Target } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import api from "@/integrations/api";
+import { getUserIdFromToken } from "@/lib/auth-utils";
 
 // Types basés sur tes données Prisma/Backend
 interface MeasurementData {
@@ -32,18 +36,21 @@ type MeasurementKey = keyof Omit<MeasurementData, "label" | "poids">;
 
 export const MeasurementForm = () => {
   const [activeField, setActiveField] = useState<MeasurementKey | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<MeasurementData>({
     label: "Mon Profil Principal",
-    poitrine: null,
-    taille: null,
-    poids: null,
-    epaule: null,
-    longueurBras: null,
-    longueurJambe: null,
-    cou: null,
-    hanche: null,
-    poignet: null,
-    ventre: null,
+    poitrine: 0,
+    taille: 0,
+    poids: 0,
+    epaule: 0,
+    longueurBras: 0,
+    longueurJambe: 0,
+    cou: 0,
+    hanche: 0,
+    poignet: 0,
+    ventre: 0,
   });
 
   const handleFocus = (field: MeasurementKey) => setActiveField(field);
@@ -51,8 +58,41 @@ export const MeasurementForm = () => {
   const handleInputChange = (field: keyof MeasurementData, value: string) => {
     setFormData({
       ...formData,
-      [field]: value === "" ? null : parseFloat(value),
+      [field]: value === "" ? 0 : parseFloat(value),
     });
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const saveMeasurements = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("access_token");
+      const userId = getUserIdFromToken(token);
+      if (userId) {
+        const response = await api.post(`/mesure/${userId}`, formData);
+        if (response.status === 201) {
+          toast({
+            title: "Mesures enregistrées",
+            description: "Votre profil Modol'k a été mis à jour avec succès.",
+          });
+          setTimeout(() => navigate("/home"), 1500);
+        }
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erreur lors de l'inscription",
+        description:
+          error.response?.data?.message || "Une erreur est survenue.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Petite aide contextuelle selon la mesure
@@ -237,7 +277,7 @@ export const MeasurementForm = () => {
 
         {/* PARTIE DROITE : Le Formulaire Détaillé */}
         <ScrollArea className="h-[600px] pr-5">
-          <form className="space-y-8">
+          <form onSubmit={saveMeasurements} className="space-y-8">
             {/* Label du Profil */}
             <div className="space-y-2 border-b pb-6">
               <Label
@@ -265,19 +305,21 @@ export const MeasurementForm = () => {
                   id="poids"
                   type="number"
                   placeholder="ex: 75"
+                  value={formData.poids}
+                  onChange={(e) => handleInputChange("poids", e.target.value)}
                   className="focus-visible:ring-primary"
                 />
               </div>
               {/* Le backend n'a pas de champ 'taille' (hauteur), je suppose que 'taille'=waist. J'ajoute Hauteur pour l'UX */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="hauteur">
                   Hauteur (cm){" "}
                   <span className="text-xs text-muted-foreground">
                     (Optionnel)
                   </span>
                 </Label>
-                <Input id="hauteur" type="number" placeholder="ex: 180" />
-              </div>
+                <Input id="hauteur" type="number" placeholder="ex: 180" value={formData.}/>
+              </div> */}
             </div>
 
             {/* Grille de mesures précises (Tes Données) */}
@@ -316,6 +358,7 @@ export const MeasurementForm = () => {
                     step="0.1"
                     placeholder="ex: 0.0"
                     onFocus={() => handleFocus(key)}
+                    value={formData[key as keyof MeasurementData] || ""}
                     onChange={(e) => handleInputChange(key, e.target.value)}
                     className="focus-visible:ring-primary h-11"
                   />
@@ -327,7 +370,9 @@ export const MeasurementForm = () => {
               type="submit"
               className="w-full bg-slate-950 text-white rounded-none py-7 text-lg font-semibold tracking-wide mt-10 hover:bg-slate-800 transition-colors"
             >
-              Valider et Enregistrer le Profil
+              {loading
+                ? "Enregistrement..."
+                : "Valider et Enregistrer la mesure"}
             </Button>
           </form>
         </ScrollArea>

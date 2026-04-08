@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -51,7 +51,7 @@ const Register = () => {
         localStorage.setItem("refresh_token", tokens.refreshToken);
 
         // 2. Stockage optionnel des infos utilisateur (pour l'affichage dans la Navbar par exemple)
-        localStorage.setItem("user", JSON.stringify(user));
+        // localStorage.setItem("user", JSON.stringify(user));
 
         toast({
           title: "Inscription réussie !",
