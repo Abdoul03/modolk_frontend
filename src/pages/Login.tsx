@@ -48,7 +48,7 @@ const Login = () => {
 
         toast({
           title: "Connexion réussie !",
-          description: `Bienvenue${user.prenom} chez modol'k, vous êtes maintenant connecté.`,
+          description: `Bienvenue ${user.prenom} chez modol'k, vous êtes maintenant connecté.`,
         });
 
         setTimeout(() => navigate("/home"), 1500);
