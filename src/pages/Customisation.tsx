@@ -29,6 +29,7 @@ const Customisation = () => {
 
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
 
   const [model, setModel] = useState<Model | null>(
     location.state?.modelData || null,
@@ -38,7 +39,7 @@ const Customisation = () => {
   const [mesures, setMesures] = useState<Mesure[]>([]);
   const [selectedMesureId, setSelectedMesureId] = useState<string>("");
   const [selectedOptions, setSelectedOptions] = useState<CustomOption[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [quantite, setQuantite] = useState<number>(1);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -91,9 +92,10 @@ const Customisation = () => {
     );
   };
 
-  const totalPrice =
+  const unitPrice =
     (model?.prixBase || 0) +
     selectedOptions.reduce((acc, opt) => acc + opt.prixAjout, 0);
+  const totalPrice = unitPrice * quantite;
 
   if (loading)
     return (
@@ -131,7 +133,7 @@ const Customisation = () => {
             modelId: model?.id,
             tissusId: model?.tissusId,
             mesureId: parseInt(selectedMesureId), // ID spécifique à la tenue
-            quantite: 1,
+            quantite: quantite,
             optionIds: selectedOptions.map((opt) => opt.id),
           },
         ],
@@ -331,6 +333,40 @@ const Customisation = () => {
                 </p>
               )}
             </div>
+          </section>
+
+          <Separator />
+
+          {/* SECTION QUANTITÉ */}
+          <section className="space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-primary">
+              Nombre de tenues
+            </h3>
+            <div className="flex items-center gap-4 bg-card border rounded-2xl p-2 w-fit shadow-sm">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-xl hover:bg-primary/10 h-10 w-10"
+                onClick={() => setQuantite(Math.max(1, quantite - 1))}
+                disabled={quantite <= 1}
+              >
+                -
+              </Button>
+              <span className="text-lg font-black w-8 text-center">
+                {quantite}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-xl hover:bg-primary/10 h-10 w-10 text-primary font-bold"
+                onClick={() => setQuantite(quantite + 1)}
+              >
+                +
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground italic ml-2">
+              Le prix unitaire est de {unitPrice.toLocaleString()} FCFA
+            </p>
           </section>
 
           <Separator />
