@@ -10,6 +10,9 @@ import Register from "./pages/register.tsx";
 import Home from "./pages/Home.tsx";
 import { MeasurementForm } from "./pages/MeasurementForm.tsx";
 import MainLayout from "./components/MainLayout.tsx";
+import Catalog from "./pages/Catalog.tsx";
+import Commandes from "./pages/Commandes.tsx";
+import Profil from "./pages/profil.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +31,9 @@ const App = () => (
           <Route element={<MainLayout />}>
             <Route path="/home" element={<Home />} />
             <Route path="/mesure" element={<MeasurementForm />} />
+            <Route path="/catalog" element={<Catalog />} />
+            <Route path="/orders" element={<Commandes />} />
+            <Route path="/profile" element={<Profil />} />
           </Route>
         </Routes>
       </BrowserRouter>

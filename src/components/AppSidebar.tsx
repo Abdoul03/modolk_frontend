@@ -6,6 +6,7 @@ import {
   User,
   LogOut,
   Scissors,
+  UserIcon,
 } from "lucide-react";
 
 import {
@@ -28,7 +29,7 @@ const clientMenuItems = [
   { title: "Catalogue Modèles", icon: Scissors, url: "/catalog" },
   { title: "Mes Commandes", icon: ShoppingBag, url: "/orders" },
   { title: "Mes Mesures", icon: Ruler, url: "/mesure" },
-  { title: "Paiements", icon: CreditCard, url: "/payments" },
+  { title: "Profile", icon: UserIcon, url: "/profile" },
 ];
 
 export function AppSidebar() {

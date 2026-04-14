@@ -1,26 +1,8 @@
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Ruler,
-  Plus,
-  Package,
-  Heart,
-  Settings,
-  ChevronRight,
-  Clock,
-} from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DashboardHeader } from "@/components/DashboardHeader";
-import StatCard from "@/components/StatCard";
-import OrderItem from "@/components/OrderItem";
-import { Link, useLocation } from "react-router-dom";
+import { Ruler, Plus, Package, Heart, ChevronRight, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { getUserIdFromToken } from "@/lib/auth-utils";
 import api from "@/integrations/api";
@@ -28,20 +10,24 @@ import { Button } from "@/components/ui/button";
 
 const Home = () => {
   const [user, setUser] = useState(null);
+  const [commande, setCommande] = useState(null);
+  const [mesure, setMesure] = useState(null);
+
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem("access_token");
+
     const fetchUser = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem("access_token");
         const userId = getUserIdFromToken(token);
 
         if (userId) {
           const response = await api.get(`/users/${userId}`);
 
-          if (response.status === 200 || response.status === 201) {
+          if (response.status === 200) {
             setUser(response.data);
           }
         }
@@ -49,21 +35,70 @@ const Home = () => {
         toast({
           variant: "destructive",
           title: "Session interrompue",
-          description: "Merci de vous reconnecter pour accéder à votre espace.",
+          description:
+            error.response?.data?.message || "Une erreur est survenue.",
         });
       } finally {
         setLoading(false);
       }
     };
 
-    const fetchCommande = async () => {};
+    const fetchCommande = async () => {
+      setLoading(true);
+      try {
+        const userId = getUserIdFromToken(token);
 
-    const fetchMesure = async () => {};
+        if (userId) {
+          const response = await api.get(`/commande/user/${userId}`);
+
+          if (response.status === 200) {
+            setCommande(response.data);
+          }
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Recupperation interrompue",
+          description:
+            error.response?.data?.message || "Une erreur est survenue.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchMesure = async () => {
+      setLoading(true);
+      try {
+        const userId = getUserIdFromToken(token);
+        if (userId) {
+          const response = await api.get(`/mesure/${userId}/all`);
+
+          if (response.status === 200) {
+            setMesure(response.data);
+          }
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Recupperation interrompue",
+          description:
+            error.response?.data?.message || "Une erreur est survenue.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchUser();
     fetchCommande();
     fetchMesure();
   }, [toast]);
+
+  // Aide au rendu : On récupère la commande la plus récente pour la carte "Active"
+  const activeCommande = Array.isArray(commande) ? commande[0] : null;
+  // On récupère le dernier profil de mesure
+  const latestMesure = Array.isArray(mesure) ? mesure[mesure.length - 1] : null;
 
   if (loading)
     return (
@@ -105,9 +140,15 @@ const Home = () => {
               <p className="text-sm font-semibold uppercase text-muted-foreground tracking-wide">
                 Commande Active
               </p>
-              <p className="text-xl font-bold mt-1">Tenue Bazin Riche</p>
+              <p className="text-xl font-bold mt-1">
+                {activeCommande
+                  ? `Commande #${activeCommande.id.toString().slice(-4)}`
+                  : "Aucune commande"}
+              </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Statut : En production
+                {activeCommande
+                  ? `Statut : ${activeCommande.statutCommande}`
+                  : "Prêt pour un nouveau projet ?"}
               </p>
             </div>
           </CardContent>
@@ -122,9 +163,15 @@ const Home = () => {
               <p className="text-sm font-semibold uppercase text-muted-foreground tracking-wide">
                 Mes Mensurations
               </p>
-              <p className="text-xl font-bold mt-1">Standard (2026)</p>
+              <p className="text-xl font-bold mt-1">
+                {mesure && mesure.length > 0
+                  ? mesure[mesure.length - 1].label
+                  : "Non défini"}
+              </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Dernière modif. : Mars 2026
+                {mesure && mesure.length > 0
+                  ? `Type: ${mesure[mesure.length - 1].status}`
+                  : "Aucune donnée enregistrée"}
               </p>
             </div>
           </CardContent>
@@ -139,9 +186,9 @@ const Home = () => {
               <p className="text-sm font-semibold uppercase text-muted-foreground tracking-wide">
                 Favoris
               </p>
-              <p className="text-xl font-bold mt-1">12 Modèles</p>
+              <p className="text-xl font-bold mt-1">0 Modèles</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Enregistrés pour plus tard
+                Bientôt disponible
               </p>
             </div>
           </CardContent>
@@ -157,36 +204,47 @@ const Home = () => {
 
         {/* LE GROS CONTENEUR GRIS (Figma Layer 14 Rectangle) */}
         <div className="rounded-2xl border bg-card/50 p-2 space-y-2">
-          {/* CHAQUE ÉLÉMENT DE LISTE (Figma Rectangles 1 to 13) */}
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between p-4 bg-background hover:bg-muted/50 transition-all rounded-lg border"
-            >
-              <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-lg bg-secondary flex items-center justify-center text-[10px] font-bold text-muted-foreground">
-                  PHOTO
+          {Array.isArray(commande) && commande.length > 0 ? (
+            commande.map((cmd) => (
+              <div
+                key={cmd.id}
+                className="flex items-center justify-between p-4 bg-background hover:bg-muted/50 transition-all rounded-lg border"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-lg bg-secondary flex items-center justify-center text-[10px] font-bold text-muted-foreground">
+                    MODOL'K
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">
+                      Commande #CMD-{cmd.id}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {cmd.tenues?.length || 0} article(s) •{" "}
+                      {cmd.totalPrice?.toLocaleString()} FCFA •{" "}
+                      {new Date(cmd.dateCommande).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-sm">
-                    Commande #MOD-2026-00{i}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    2 articles • 45.000 FCFA • {i} Avril 2026
-                  </p>
+                <div className="flex items-center gap-4">
+                  <Badge
+                    variant="outline"
+                    className={
+                      cmd.statutCommande === "LIVRE"
+                        ? "bg-green-50 text-green-700"
+                        : "bg-orange-50 text-orange-700"
+                    }
+                  >
+                    {cmd.statut}
+                  </Badge>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-700 hover:bg-green-100 border-none"
-                >
-                  Livré
-                </Badge>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </div>
+            ))
+          ) : (
+            <div className="p-8 text-center text-muted-foreground">
+              Vous n'avez pas encore de commandes.
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>
