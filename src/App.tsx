@@ -13,6 +13,7 @@ import MainLayout from "./components/MainLayout.tsx";
 import Catalog from "./pages/Catalog.tsx";
 import Commandes from "./pages/Commandes.tsx";
 import Profil from "./pages/profil.tsx";
+import Customisation from "./pages/Customisation.tsx";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/home" element={<Home />} />
             <Route path="/mesure" element={<MeasurementForm />} />
             <Route path="/catalog" element={<Catalog />} />
+            <Route path="/custom/:id" element={<Customisation />} />
             <Route path="/orders" element={<Commandes />} />
             <Route path="/profile" element={<Profil />} />
           </Route>

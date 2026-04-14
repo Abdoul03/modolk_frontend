@@ -4,12 +4,13 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import api from "@/integrations/api";
+import { Model } from "@/models/model";
 import { Search, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Catalog = () => {
-  const [models, setModels] = useState(null);
+  const [models, setModels] = useState<Model[] | null>(null);
 
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -29,24 +30,6 @@ const Catalog = () => {
             error.response?.data?.message || "Une erreur est survenue.",
         });
         setModels([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchImage = async () => {
-      try {
-        const response = await api.get("/design");
-        if (response.status === 200) {
-          setModels(Array.isArray(response.data) ? response.data : []);
-        }
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Session interrompue",
-          description:
-            error.response?.data?.message || "Une erreur est survenue.",
-        });
       } finally {
         setLoading(false);
       }
@@ -98,7 +81,7 @@ const Catalog = () => {
                 key={model.id}
                 className="group overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300"
               >
-                <Link to="detail">
+                <Link to={`/custom/${model.id}`} state={{ modelData: model }}>
                   {/* IMAGE DU MODÈLE */}
                   <div className="relative aspect-[3/4] overflow-hidden bg-muted">
                     <img
