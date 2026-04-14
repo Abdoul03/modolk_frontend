@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import api from "@/integrations/api";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { ShoppingCart, Ruler, Info } from "lucide-react";
+import { ShoppingCart, Ruler, Info, Loader2, ShoppingBag } from "lucide-react";
 import { Tissu } from "@/models/tissu";
 import { CustomOption } from "@/models/CustomOption";
 import { Model } from "@/models/model";
@@ -25,6 +25,8 @@ import {
 
 const Customisation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
 
@@ -101,6 +103,62 @@ const Customisation = () => {
     );
   if (!model)
     return <div className="text-center p-20">Modèle introuvable.</div>;
+
+  const handleOrder = async () => {
+    const token = localStorage.getItem("access_token");
+    const userId = getUserIdFromToken(token);
+
+    // Validation de sécurité
+    if (!selectedMesureId) {
+      toast({
+        variant: "destructive",
+        title: "Mesures manquantes",
+        description:
+          "Veuillez sélectionner un profil de mesures pour continuer.",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Construction de l'objet selon ton format Postman
+      const commandePayload = {
+        utilisateurId: userId,
+        mesureId: parseInt(selectedMesureId), // ID global de la commande
+        tenues: [
+          {
+            modelId: model?.id,
+            tissusId: model?.tissusId,
+            mesureId: parseInt(selectedMesureId), // ID spécifique à la tenue
+            quantite: 1,
+            optionIds: selectedOptions.map((opt) => opt.id),
+          },
+        ],
+      };
+
+      const response = await api.post("/commande", commandePayload);
+
+      if (response.status === 201 || response.status === 200) {
+        toast({
+          title: "Commande réussie ! 🎉",
+          description: "Veillez proceder au payement de la commande.",
+        });
+
+        setTimeout(() => navigate("/orders"), 1500);
+        // navigate("/profile/orders");
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erreur lors de la commande",
+        description:
+          error.response?.data?.message || "Une erreur est survenue.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto py-10 px-4 md:px-6">
@@ -294,8 +352,22 @@ const Customisation = () => {
               </Button>
             </div>
 
-            <Button className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-primary/20 gap-3">
-              <ShoppingCart className="h-5 w-5" /> Confirmer la commande
+            <Button
+              onClick={handleOrder}
+              className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg shadow-primary/20 gap-3"
+              disabled={loading || !selectedMesureId}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Traitement en cours...
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="h-5 w-5" />
+                  Confirmer la commande • {totalPrice.toLocaleString()} F
+                </>
+              )}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
               Paiement sécurisé • Livraison sur mesure sous 10 jours
