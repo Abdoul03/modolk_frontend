@@ -17,6 +17,7 @@ import Customisation from "./pages/Customisation.tsx";
 import Mesures from "./pages/mesures.tsx";
 import Dashboard from "./pages/admin/Dashboard.tsx";
 import AdminLayout from "./components/AdminLayout.tsx";
+import AdminCommandes from "./pages/admin/AdminCommandes.tsx";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
           </Route>
           <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/commandes" element={<AdminCommandes />} />
           </Route>
         </Routes>
       </BrowserRouter>

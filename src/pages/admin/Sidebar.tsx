@@ -23,6 +23,11 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    window.location.href = "/login";
+  };
+
   const location = useLocation();
 
   return (
@@ -73,9 +78,7 @@ const Sidebar = () => {
         <Button
           variant="ghost"
           className="w-full justify-start gap-4 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded-xl px-4 py-6"
-          onClick={() => {
-            /* Ta logique de déconnexion */
-          }}
+          onClick={() => handleLogout()}
         >
           <LogOut className="h-5 w-5" />
           <span className="font-bold uppercase tracking-widest text-[11px]">
