@@ -34,6 +34,11 @@ const clientMenuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    window.location.href = "/login";
+  };
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader className="flex items-center justify-center py-4">
@@ -122,7 +127,10 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="text-destructive">
+            <SidebarMenuButton
+              className="text-destructive"
+              onClick={handleLogout}
+            >
               <LogOut />
               <span>Déconnexion</span>
             </SidebarMenuButton>

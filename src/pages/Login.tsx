@@ -46,12 +46,16 @@ const Login = () => {
         localStorage.setItem("access_token", tokens.accessToken);
         localStorage.setItem("refresh_token", tokens.refreshToken);
 
-        toast({
-          title: "Connexion réussie !",
-          description: `Bienvenue ${user.prenom} chez modol'k, vous êtes maintenant connecté.`,
-        });
+        if (user.role === "CLIENT") {
+          toast({
+            title: "Connexion réussie !",
+            description: `Bienvenue ${user.prenom} chez modol'k, vous êtes maintenant connecté.`,
+          });
 
-        setTimeout(() => navigate("/home"), 1500);
+          setTimeout(() => navigate("/home"), 1000);
+        } else {
+          setTimeout(() => navigate("/admin/dashboard"), 1000);
+        }
       }
     } catch (error) {
       toast({
