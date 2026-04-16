@@ -3,7 +3,6 @@ import { Plus, Package, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -150,6 +149,21 @@ const AdminModel = () => {
                 <p className="text-slate-500 text-xs font-medium line-clamp-2 italic">
                   "{model.description}"
                 </p>
+
+                {/* Liste des options de customisation */}
+                {model.options && model.options.length > 0 && (
+                  <div className="flex flex-wrap gap-1 py-2">
+                    {model.options.map((opt) => (
+                      <Badge
+                        key={opt.id}
+                        variant="outline"
+                        className="text-[8px] border-slate-200 text-slate-500 font-bold uppercase rounded-md px-1"
+                      >
+                        {opt.type}: {opt.nom} (+{opt.prixAjout} F)
+                      </Badge>
+                    ))}
+                  </div>
+                )}
 
                 <div className="pt-4 flex items-center justify-between border-t border-slate-50">
                   <div className="flex items-center gap-2 text-slate-400">
