@@ -13,6 +13,7 @@ import {
 import api from "@/integrations/api";
 import { useToast } from "@/components/ui/use-toast";
 import AddModelDialog from "./utils/AddModelDialog";
+import AddCustomOptionDialog from "./utils/AddCustomOptionDialog";
 
 const AdminModel = () => {
   const [models, setModels] = useState([]);
@@ -62,19 +63,6 @@ const AdminModel = () => {
   return (
     <div className="p-8 space-y-8 bg-slate-50 min-h-screen">
       {/* Header avec bouton d'ajout */}
-      {/* <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">
-            Catalogue Modèles
-          </h1>
-          <p className="text-slate-500 font-medium">
-            Gérez vos créations et designs personnalisés.
-          </p>
-        </div>
-        <Button className="rounded-full bg-slate-900 hover:bg-slate-800 px-6 font-bold uppercase text-xs tracking-widest h-12">
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un modèle
-        </Button>
-      </div> */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-tighter text-slate-900">
@@ -150,6 +138,10 @@ const AdminModel = () => {
                   <h3 className="font-black uppercase text-lg leading-tight text-slate-900 line-clamp-1">
                     {model.nom}
                   </h3>
+                  <AddCustomOptionDialog
+                    modelId={model.id}
+                    modelName={model.nom}
+                  />
                   <span className="font-black text-primary whitespace-nowrap">
                     {model.prixBase.toLocaleString()} F
                   </span>
