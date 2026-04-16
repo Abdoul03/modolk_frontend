@@ -39,7 +39,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tenue } from "@/models/tenue";
 
 const AdminCommandes = () => {
   const [commandes, setCommandes] = useState<Commande[]>([]);
@@ -64,19 +63,23 @@ const AdminCommandes = () => {
 
       const tenuesEnrichies = await Promise.all(
         cmd.tenues.map(async (tenue) => {
-          // Récupération du modèle, du tissu ET des détails des options
           const [modelRes, tissuRes] = await Promise.all([
             api.get(`/design/${tenue.modelId}`),
             api.get(`/tissus/${tenue.tissusId}`),
           ]);
 
-          // Enrichissement des options de personnalisation
+          // On récupère les détails de chaque option via son ID de customisation
           const optionsDetails = await Promise.all(
             tenue.options.map(async (opt) => {
-              const optRes = await api.get(
-                `/custum-option/${opt.optionCustomisationId}`,
-              );
-              return optRes.data;
+              try {
+                // Note: Utilisation de /custum-option d'après ton Swagger
+                const optRes = await api.get(
+                  `/custum-option/${opt.optionCustomisationId}`,
+                );
+                return optRes.data;
+              } catch (e) {
+                return null;
+              }
             }),
           );
 
@@ -84,7 +87,7 @@ const AdminCommandes = () => {
             ...tenue,
             modelData: modelRes.data,
             tissuData: tissuRes.data,
-            optionsEnrichies: optionsDetails, // On stocke les noms des options ici
+            optionsEnrichies: optionsDetails.filter((o) => o !== null),
           };
         }),
       );
@@ -95,7 +98,13 @@ const AdminCommandes = () => {
         tenues: tenuesEnrichies,
       });
     } catch (error) {
-      console.error("Erreur d'enrichissement:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description:
+          error.response?.data?.message ||
+          "Impossible de récupérer les commandes.",
+      });
     } finally {
       setIsDetailsLoading(false);
     }
@@ -334,72 +343,113 @@ const AdminCommandes = () => {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-[2rem] p-0 bg-slate-50 border-none">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-[2rem] p-0 bg-slate-50 border-none">
+          <DialogHeader className="p-8 pb-0">
+            <DialogTitle className="text-2xl font-black uppercase tracking-tighter">
+              Détails de la Commande #{selectedOrderDetails?.id}
+            </DialogTitle>
+            {/* Affichage du Nom du Client */}
+            <p className="text-sm font-bold text-primary uppercase">
+              Client : {selectedOrderDetails?.clientName || "Chargement..."}
+            </p>
+          </DialogHeader>
+
           {isDetailsLoading ? (
-            <div className="p-10 text-center">Chargement des détails...</div>
+            <div className="p-20 text-center flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="font-bold uppercase text-xs">
+                Récupération des données...
+              </p>
+            </div>
           ) : (
             selectedOrderDetails && (
-              <div className="p-8 space-y-6">
+              <div className="p-8 pt-4 space-y-6">
                 {selectedOrderDetails.tenues.map((tenue, idx: number) => (
                   <Card
                     key={idx}
                     className="border-none shadow-sm rounded-[2rem] overflow-hidden bg-white"
                   >
                     <div className="flex flex-col md:flex-row">
-                      {/* Image avec URL correcte */}
-                      <div className="w-full md:w-40 h-40 bg-slate-100">
+                      {/* 1. Modèle (Image) */}
+                      <div className="w-full md:w-48 h-48 bg-slate-100">
                         <img
                           src={`${import.meta.env.VITE_API_URL}${
                             tenue.modelData?.medias?.[0]?.imageUrl
                           }`}
                           className="h-full w-full object-cover"
-                          alt="Modèle"
+                          alt={tenue.modelData?.nom}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "https://placehold.co/400x400?text=Pas+d'image";
+                          }}
                         />
                       </div>
 
-                      <div className="p-6 flex-1 space-y-4">
-                        <div>
-                          <h4 className="font-black uppercase text-base">
-                            {tenue.modelData?.nom}
-                          </h4>
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase italic">
-                            Tissu : {tenue.tissuData?.type} (
-                            {tenue.tissuData?.couleur})
-                          </p>
+                      <div className="p-6 flex-1 space-y-6">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-black uppercase text-xl text-slate-900">
+                              {tenue.modelData?.nom || "Modèle inconnu"}
+                            </h4>
+                            <p className="text-xs font-bold text-muted-foreground uppercase italic">
+                              Tissu : {tenue.tissuData?.type} (
+                              {tenue.tissuData?.couleur})
+                            </p>
+
+                            {/* AFFICHAGE DES OPTIONS - C'est cette partie qui manque sur ta capture */}
+                            <div className="mt-3 space-y-1">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                Options choisies :
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {tenue.optionsEnrichies &&
+                                tenue.optionsEnrichies.length > 0 ? (
+                                  tenue.optionsEnrichies.map((opt) => (
+                                    <span
+                                      key={opt.id}
+                                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 uppercase"
+                                    >
+                                      + {opt.type}{" "}
+                                      {/* Affiche "Bouton" ou "Broderie" d'après ton Bruno */}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-[10px] text-slate-400 italic font-medium">
+                                    Aucune option
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <Badge className="bg-slate-900">
+                            Qté: {tenue.quantite}
+                          </Badge>
                         </div>
 
-                        {/* Affichage des Options de personnalisation choisies */}
-                        {tenue.optionsEnrichies?.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {tenue.optionsEnrichies.map((opt) => (
-                              <span
-                                key={opt.id}
-                                className="text-[9px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-bold uppercase"
-                              >
-                                + {opt.nom}
-                              </span>
-                            ))}
+                        {/* 4. Mensurations (Snapshot) */}
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            Mensurations du client
+                          </p>
+                          <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                            {Object.entries(tenue.mesuresSnapshot || {}).map(
+                              ([key, val]) =>
+                                key !== "label" && (
+                                  <div
+                                    key={key}
+                                    className="bg-slate-50 p-2 rounded-xl border border-slate-100 text-center"
+                                  >
+                                    <p className="text-[7px] uppercase font-black text-slate-400 leading-none mb-1">
+                                      {key}
+                                    </p>
+                                    <p className="text-xs font-bold text-slate-800">
+                                      {val as string}
+                                    </p>
+                                  </div>
+                                ),
+                            )}
                           </div>
-                        )}
-
-                        {/* Correction du rendu des mesures (Capture 10) */}
-                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mt-4">
-                          {Object.entries(tenue.mesuresSnapshot || {}).map(
-                            ([key, val]) =>
-                              key !== "label" && (
-                                <div
-                                  key={key}
-                                  className="bg-slate-50 p-2 rounded-xl border border-slate-100"
-                                >
-                                  <p className="text-[7px] uppercase font-black text-slate-400 leading-none mb-1">
-                                    {key}
-                                  </p>
-                                  <p className="text-xs font-bold text-slate-700">
-                                    {val as string}
-                                  </p>
-                                </div>
-                              ),
-                          )}
                         </div>
                       </div>
                     </div>

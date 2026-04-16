@@ -18,6 +18,9 @@ import Mesures from "./pages/mesures.tsx";
 import Dashboard from "./pages/admin/Dashboard.tsx";
 import AdminLayout from "./components/AdminLayout.tsx";
 import AdminCommandes from "./pages/admin/AdminCommandes.tsx";
+import AdminModel from "./pages/admin/AdminModel.tsx";
+import AdminTissus from "./pages/admin/AdminTissus.tsx";
+import AdminClient from "./pages/admin/AdminClient.tsx";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,9 @@ const App = () => (
           <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/commandes" element={<AdminCommandes />} />
+            <Route path="/admin/modeles" element={<AdminModel />} />
+            <Route path="/admin/tissus" element={<AdminTissus />} />
+            <Route path="/admin/users" element={<AdminClient />} />
           </Route>
         </Routes>
       </BrowserRouter>

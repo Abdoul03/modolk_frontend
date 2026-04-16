@@ -17,7 +17,6 @@ const menuItems = [
   { icon: ShoppingBag, label: "Commandes", path: "/admin/commandes" },
   { icon: Scissors, label: "Modèles", path: "/admin/modeles" },
   { icon: Palette, label: "Tissus", path: "/admin/tissus" },
-  { icon: Ruler, label: "Mensurations", path: "/admin/mensurations" },
   { icon: Users, label: "Clients", path: "/admin/users" },
   { icon: Settings, label: "Paramètres", path: "/admin/settings" },
 ];
