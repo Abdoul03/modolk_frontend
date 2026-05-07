@@ -18,7 +18,7 @@ const menuItems = [
   { icon: Scissors, label: "Modèles", path: "/admin/modeles" },
   { icon: Palette, label: "Tissus", path: "/admin/tissus" },
   { icon: Users, label: "Clients", path: "/admin/users" },
-  { icon: Settings, label: "Paramètres", path: "/admin/settings" },
+  // { icon: Settings, label: "Paramètres", path: "/admin/settings" },
 ];
 
 const Sidebar = () => {

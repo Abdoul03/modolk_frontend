@@ -57,7 +57,8 @@ const AdminClient = () => {
   const filteredClients = clients.filter(
     (client) =>
       client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase()),
+      client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.prenom.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -69,12 +70,12 @@ const AdminClient = () => {
             Portefeuille Clients
           </h1>
           <p className="text-slate-500 font-medium italic text-sm">
-            {clients.length} ambassadeurs de la marque Modol'k enregistrés.
+            {clients.length} clients de la marque Modol'k enregistrés.
           </p>
         </div>
-        <Button className="rounded-full bg-slate-900 hover:bg-slate-800 px-6 font-bold uppercase text-[10px] tracking-widest h-12 shadow-lg transition-all">
+        {/* <Button className="rounded-full bg-slate-900 hover:bg-slate-800 px-6 font-bold uppercase text-[10px] tracking-widest h-12 shadow-lg transition-all">
           <UserPlus className="mr-2 h-4 w-4" /> Nouveau Client
-        </Button>
+        </Button> */}
       </div>
 
       {/* Barre de recherche et filtres */}
@@ -88,12 +89,12 @@ const AdminClient = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button
+        {/* <Button
           variant="ghost"
           className="rounded-xl font-bold uppercase text-[10px] gap-2"
         >
           <Filter className="h-4 w-4" /> Filtres
-        </Button>
+        </Button> */}
       </div>
 
       {/* Grille de Clients */}
@@ -149,7 +150,7 @@ const AdminClient = () => {
 
                 <div className="space-y-1 mb-6">
                   <h3 className="font-black uppercase text-lg leading-tight text-slate-900">
-                    {client.nom}
+                    {client.prenom} {client.nom}
                   </h3>
                   <Badge
                     variant="secondary"
