@@ -92,7 +92,7 @@ const Navbar = () => {
                 <Search className="w-[18px] h-[18px]" />
               </button>
               <button
-                className={`transition-colors hover:text-primary hidden md:block ${
+                className={`transition-colors hover:text-primary ${
                   scrolled ? "text-foreground" : "text-background"
                 }`}
                 onClick={() => navigate("/login")}
@@ -100,7 +100,7 @@ const Navbar = () => {
                 <User className="w-[18px] h-[18px]" />
               </button>
               <button
-                className={`transition-colors hover:text-primary relative ${
+                className={`transition-colors hover:text-primary relative hidden md:block ${
                   scrolled ? "text-foreground" : "text-background"
                 }`}
               >
@@ -112,7 +112,7 @@ const Navbar = () => {
                 )}
               </button>
               <button
-                className={`transition-colors hover:text-primary relative ${
+                className={`transition-colors hover:text-primary relative hidden md:block ${
                   scrolled ? "text-foreground" : "text-background"
                 }`}
               >
