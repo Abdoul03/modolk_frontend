@@ -21,6 +21,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -118,13 +119,14 @@ const AdminClient = () => {
                 <div className="flex justify-between items-start mb-6">
                   <Avatar className="h-16 w-16 border-4 border-slate-50 shadow-sm rounded-2xl">
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${client.nom}`}
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${client.prenom}${client.nom}`}
                     />
                     <AvatarFallback className="bg-slate-900 text-white font-black">
-                      {client.nom.substring(0, 2).toUpperCase()}
+                      {client.prenom.substring(0, 1).toUpperCase() +
+                        client.nom.substring(0, 1).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <DropdownMenu>
+                  {/* <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
@@ -145,6 +147,32 @@ const AdminClient = () => {
                         Désactiver le compte
                       </DropdownMenuItem>
                     </DropdownMenuContent>
+                  </DropdownMenu> */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full"
+                      >
+                        <MoreHorizontal className="h-5 w-5 text-slate-400" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    {/* Le Portal permet au menu de s'afficher au-dessus de tout, 
+                      même si la carte parente a un overflow-hidden */}
+                    <DropdownMenuPortal>
+                      <DropdownMenuContent
+                        align="end"
+                        className="z-[100] rounded-2xl border border-slate-100 bg-white shadow-2xl p-2 min-w-[160px]"
+                      >
+                        <DropdownMenuItem className="font-bold uppercase text-[10px] gap-2 py-3 cursor-pointer rounded-xl hover:bg-slate-50">
+                          <ArrowUpRight className="h-3 w-3" /> Voir les mesures
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="font-bold uppercase text-[10px] gap-2 py-3 cursor-pointer rounded-xl text-red-600 hover:bg-red-50">
+                          Désactiver le compte
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenuPortal>
                   </DropdownMenu>
                 </div>
 
@@ -156,7 +184,7 @@ const AdminClient = () => {
                     variant="secondary"
                     className="bg-slate-100 text-slate-500 border-none font-bold text-[8px] uppercase tracking-tighter"
                   >
-                    Client Privilège
+                    Client
                   </Badge>
                 </div>
 
